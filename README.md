@@ -9,6 +9,13 @@ README
 **EcoBlissBath - Tests Automatisés**
 Ce projet contient des tests automatisés pour l'application EcoBlissBath, un site e-commerce spécialisé dans la vente de produits de beauté écoresponsables.
 
+Ces tests garantissent le bon fonctionnement des fonctionnalités principales du site, notamment :
+
+Connexion utilisateur
+Gestion du panier
+Tests API
+Vérifications Smoke (éléments essentiels du site)
+
 - Prérequis:
 Avant d’exécuter les tests, assurez-vous d’avoir :
 Docker & Docker Compose installés sur votre machine
