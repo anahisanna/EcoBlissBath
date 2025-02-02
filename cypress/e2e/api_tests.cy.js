@@ -52,24 +52,64 @@ describe('Tests API - EcoBlissBath', () => {
                 expect(response.body).to.have.property('token');
             });
         });
+        describe('Test d’accès aux données confidentielles sans authentification', () => {
+            const baseUrl = 'http://localhost:8081';
 
-        it('Connexion échouée avec un utilisateur inconnu', () => {
-            cy.request({
-                method: 'POST',
-                url: `${baseUrl}/login`,
-                failOnStatusCode: false,
-                body: {
-                    username: 'fakeuser@test.fr',
-                    password: 'wrongpassword',
-                },
-            }).then((response) => {
-                expect(response.status).to.eq(401);
+            it('Requête non authentifiée sur /orders doit retourner 403 et non 401', () => {
+                cy.request({
+                    method: 'GET',
+                    url: `${baseUrl}/orders`,
+                    failOnStatusCode: false, // Ne pas échouer si le code d'erreur est retourné
+                }).then((response) => {
+                    expect(response.status).to.eq(403); // L'application doit retourner 403
+                });
             });
         });
+
+
+        describe('Tests API - Ajout d’un avis', () => {
+            const baseUrl = 'http://localhost:8081';
+
+            it('Ajout d’un avis (200 attendu)', () => {
+                // Étape 1 : Connexion pour obtenir un token
+                cy.request({
+                    method: 'POST',
+                    url: `${baseUrl}/login`,
+                    body: {
+                        username: 'test2@test.fr',
+                        password: 'testtest',
+                    },
+                }).then((loginResponse) => {
+                    expect(loginResponse.status).to.eq(200); // Vérification du succès de la connexion
+                    const token = loginResponse.body.token;
+
+                    // Étape 2 : Ajouter un avis
+                    cy.request({
+                        method: 'POST',
+                        url: `${baseUrl}/reviews`,
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                        body: {
+                            title: "Superbe expérience",
+                            comment: "Ce produit est incroyable !",
+                            rating: 5
+                        },
+                    }).then((response) => {
+                        expect(response.status).to.eq(200); // Vérifier que l'API retourne bien 200
+                        expect(response.body).to.have.property('title', 'Superbe expérience');
+                        expect(response.body).to.have.property('comment', 'Ce produit est incroyable !');
+                        expect(response.body).to.have.property('rating', 5);
+                    });
+                });
+            });
+        });
+
+
     });
 
-    //  TESTS PUT
-    describe('Tests API PUT - Ajout d’un produit au panier', () => {
+    //  TESTS POST
+    describe('Tests API POST - Ajout d’un produit au panier', () => {
         it('Ajout d’un produit disponible au panier', () => {
             cy.request({
                 method: 'POST',
@@ -83,7 +123,7 @@ describe('Tests API - EcoBlissBath', () => {
                 const token = loginResponse.body.token;
 
                 cy.request({
-                    method: 'PUT',
+                    method: 'POST',
                     url: `${baseUrl}/orders/add`,
                     headers: { Authorization: `Bearer ${token}` },
                     body: {

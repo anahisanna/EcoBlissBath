@@ -21,61 +21,75 @@ describe('Tests du Panier', () => {
         cy.get('a[data-cy="nav-link-cart"]').click();
 
     });
-
-
-    it('Ajout d’un produit hors stock (bug potentiel)', () => {
+    it('BUG: L’ajout d’un produit hors stock NE DOIT PAS ÊTRE POSSIBLE', () => {
         cy.get('button[ng-reflect-router-link="/products"]').click();
         cy.get('button[data-cy="product-link"]').first().click();
 
-        // Vérifier que le stock contient un nombre négatif
-        cy.get('p[data-cy="detail-product-stock"]').should('contain.text', '-');
+        // Vérifier que le stock est négatif
+        cy.get('p[data-cy="detail-product-stock"]').invoke('text').then((stockText) => {
+            const stockNumber = parseInt(stockText.match(/-?\d+/)[0]); // Extraction du nombre
+            expect(stockNumber).to.be.lte(0); // Vérifier que le produit est en rupture
 
-        // Ajouter le produit au panier
-        cy.get('button[data-cy="detail-product-add"]').click();
-        cy.get('a[data-cy="nav-link-cart"]').click();
+            // Essayer d'ajouter au panier
+            cy.get('button[data-cy="detail-product-add"]').click();
+            cy.get('a[data-cy="nav-link-cart"]').click();
 
-    });
+            // Vérifier que le produit NE DOIT PAS être ajouté
+            cy.get('p[data-cy="cart-product-name"]').should('not.exist'); // L’article ne doit pas apparaître dans le panier
+        });
+    }); /*verifier*/
+
     //-----------------------------------------//
-    it('Validation du panier avec un produit hors stock (bug potentiel)', () => {
 
+    it('Validation du panier avec un produit hors stock', () => {
         cy.get('button[ng-reflect-router-link="/products"]').click();
-        cy.url().should('include', '/#/products');
-
-
         cy.get('button[data-cy="product-link"]').first().click();
-        cy.url().should('include', '/products/');
 
+        // Vérifier que le produit est en rupture de stock (stock ≤ 0)
+        cy.get('p[data-cy="detail-product-stock"]').invoke('text').then((stockText) => {
+            const stock = parseInt(stockText.replace(/\D/g, ''), 10); // Extraire le nombre du texte
+            expect(stock).to.be.lte(0); // Vérifie que le stock est bien ≤ 0 (rupture de stock)
 
-        cy.get('p[data-cy="detail-product-stock"]').should('contain.text', '-');
+            // Ajouter le produit hors stock au panier
+            cy.get('button[data-cy="detail-product-add"]').click();
+            cy.get('a[data-cy="nav-link-cart"]').click();
+            cy.url().should('include', '/cart');
 
+            // Remplir le formulaire de commande
+            cy.get('input[data-cy="cart-input-lastname"]').type('Dupont');
+            cy.get('input[data-cy="cart-input-firstname"]').type('Jean');
+            cy.get('input[data-cy="cart-input-address"]').type('123 Rue de Paris');
+            cy.get('input[data-cy="cart-input-zipcode"]').type('75000');
+            cy.get('input[data-cy="cart-input-city"]').type('Paris');
 
-        cy.get('button[data-cy="detail-product-add"]').click();
-        cy.get('a[data-cy="nav-link-cart"]').click();
-        cy.url().should('include', '/cart');
+            // Tenter de valider la commande
+            cy.get('button[data-cy="cart-submit"]').click();
 
-        cy.get('input[data-cy="cart-input-lastname"]').type('Dupont');
-        cy.get('input[data-cy="cart-input-firstname"]').type('Jean');
-        cy.get('input[data-cy="cart-input-address"]').type('123 Rue de Paris');
-        cy.get('input[data-cy="cart-input-zipcode"]').type('75000');
-        cy.get('input[data-cy="cart-input-city"]').type('Paris');
-
-        cy.get('button[data-cy="cart-submit"]').click();
+            // Vérifier si la validation a été acceptée
+            cy.url().then((currentUrl) => {
+                if (!currentUrl.includes('/cart')) {
+                    throw new Error('BUG:L’application a validé une commande avec un produit hors stock');
+                }
+            });
+        });
     });
 
-    it('Ajout de plus de 20 produits (bug potentiel)', () => {
+
+    it('Ne doit pas permettre l’ajout de plus de 20 produits', () => {
         cy.get('button[ng-reflect-router-link="/products"]').click();
         cy.get('button[data-cy="product-link"]').first().click();
 
         // Modifier la quantité à 25 avant d'ajouter au panier
         cy.get('input[data-cy="detail-product-quantity"]').clear().type('25');
         cy.get('button[data-cy="detail-product-add"]').click();
-        cy.get('a[data-cy="nav-link-cart"]').click();
 
-        // Vérifier que la quantité est bien supérieure à 20 dans le panier
+        // Vérifier qu’un message d’erreur s’affiche ou que la quantité est limitée à 20
         cy.get('input[data-cy="cart-line-quantity"]').invoke('val').then((val) => {
-            expect(parseInt(val)).to.be.greaterThan(20);
+            expect(parseInt(val)).to.be.lte(20); // La quantité ne doit jamais dépasser 20
         });
-    })
+
+    });
+
 
     it('Ne doit pas permettre la saisie d’une quantité négative', () => {
         cy.get('button[ng-reflect-router-link="/products"]').click();

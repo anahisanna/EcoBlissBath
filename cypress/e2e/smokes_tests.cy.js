@@ -6,7 +6,7 @@ describe('Smoke Tests - Vérifications des éléments essentiels du site', () =>
     // 🟢 Vérification des champs et boutons de connexion
     it('Vérification des éléments de la page de connexion', () => {
         cy.get('a[data-cy="nav-link-login"]').click();
-        cy.url().should('include', '/#/login');
+        cy.url().should('include', '/login');
 
         // Vérifier la présence des champs et boutons
         cy.get('input[data-cy="login-input-username"]').should('be.visible');
@@ -17,7 +17,7 @@ describe('Smoke Tests - Vérifications des éléments essentiels du site', () =>
     it('Vérification de la présence des boutons "Ajouter au panier"', () => {
         // Aller à la page des produits
         cy.get('button[ng-reflect-router-link="/products"]').click();
-        cy.url().should('include', '/#/products');
+        cy.url().should('include', '/products');
 
         // Vérifier qu'il y a au moins un produit avec un bouton "Ajouter au panier"
         cy.get('button[data-cy="product-link"]').first().click(); // Sélectionner un produit
@@ -30,7 +30,7 @@ describe('Smoke Tests - Vérifications des éléments essentiels du site', () =>
     //  Vérification de la disponibilité du stock
     it('Vérification du champ de disponibilité du produit', () => {
         cy.get('button[ng-reflect-router-link="/products"]').click();
-        cy.url().should('include', '/#/products');
+        cy.url().should('include', '/products');
 
         // Sélectionner un produit
         cy.get('button[data-cy="product-link"]').first().click();

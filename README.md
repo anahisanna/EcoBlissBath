@@ -1,10 +1,3 @@
-# Installation du projet
-1. Téléchargez ou clonez le dépôt
-2. Depuis un terminal ouert dans le dossier du projet, lancer la commande : `sudo docker-compose up --build`
-3. Ouvrez le site depuis la page http://localhost:8080 
-
-Nb : à l'étape 2, ne pas ajouter le `sudo` si vous êtes sous Windows (sauf dernière version de Windows 11) (PowerShell ou Shell) : sudo n'existant pas et Docker Desktop configurant automatiquement Docker pour ne pas avoir besoin des droits administrateur.
-README
 
 **EcoBlissBath - Tests Automatisés**
 Ce projet contient des tests automatisés pour l'application EcoBlissBath, un site e-commerce spécialisé dans la vente de produits de beauté écoresponsables.
@@ -24,23 +17,23 @@ npm
 Cypress installé (npm install cypress)
 Installation & Lancement du Projet
 
-1- Cloner le dépôt
+1- Cloner le dépôt:
 git clone https://github.com/anahisanna/EcoBlissBath.git
 cd EcoBlissBath
 
-2- Lancer l’application avec Docker
+2- Lancer l’application avec Docker:
 sudo docker-compose up --build
 ➡Ouvrir l’application sur http://localhost:8080
 -Exécution des Tests Automatisés
 
-3- Installer les dépendances Cypress
+3- Installer les dépendances Cypress:
 npm install
 
-4- Lancer les tests en mode interface graphique
+4- Lancer les tests en mode interface graphique:
 npx cypress open
 ➡Sélectionner E2E Testing puis Chrome ou Electron pour exécuter les tests.
 
-5- Lancer les tests en mode headless (console)
+5- Lancer les tests en mode headless (console):
 npx cypress run
 Cette commande exécute tous les tests sans ouvrir l'interface graphique.
 

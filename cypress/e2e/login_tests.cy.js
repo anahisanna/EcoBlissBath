@@ -3,7 +3,7 @@ describe('Tests de Connexion', () => {
         // Étape 1 : Visiter la page d'accueil et accéder à la page de connexion
         cy.visit('http://localhost:8080');
         cy.get('a[data-cy="nav-link-login"]').should('be.visible').click();
-        cy.url().should('include', '/#/login');
+        cy.url().should('include', '/login');
     });
 
     it('Connexion réussie avec un utilisateur valide', () => {
@@ -13,7 +13,7 @@ describe('Tests de Connexion', () => {
         cy.get('button[data-cy="login-submit"]').click();
 
         // Vérifier que l'utilisateur est redirigé vers l'accueil après connexion
-        cy.url().should('eq', 'http://localhost:8080/#/');
+        cy.url().should('eq', 'http://localhost:8080/');
 
     });
 
